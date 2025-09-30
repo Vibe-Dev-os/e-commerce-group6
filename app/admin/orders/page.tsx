@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,107 +8,123 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Eye, Search, Package, Calendar, User } from "lucide-react"
+import { Eye, Search, Package, Calendar, User, Loader2 } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
-// Mock orders data
-const initialOrders = [
-  {
-    id: "ORD-001",
-    customer: {
-      name: "John Doe",
-      email: "john@example.com",
-    },
-    date: "2024-01-15",
-    status: "delivered",
-    total: 1299.99,
-    items: [
-      { name: "Gaming Laptop Pro X1", quantity: 1, price: 1299.99 }
-    ],
-    shippingAddress: "123 Main St, New York, NY 10001",
-  },
-  {
-    id: "ORD-002", 
-    customer: {
-      name: "Jane Smith",
-      email: "jane@example.com",
-    },
-    date: "2024-01-14",
-    status: "shipped",
-    total: 89.99,
-    items: [
-      { name: "Wireless Gaming Mouse", quantity: 1, price: 89.99 }
-    ],
-    shippingAddress: "456 Oak Ave, Los Angeles, CA 90001",
-  },
-  {
-    id: "ORD-003",
-    customer: {
-      name: "Bob Johnson",
-      email: "bob@example.com",
-    },
-    date: "2024-01-13", 
-    status: "processing",
-    total: 449.99,
-    items: [
-      { name: "Gaming Chair Elite", quantity: 1, price: 449.99 }
-    ],
-    shippingAddress: "789 Pine Rd, Chicago, IL 60601",
-  },
-  {
-    id: "ORD-004",
-    customer: {
-      name: "Alice Williams",
-      email: "alice@example.com",
-    },
-    date: "2024-01-12",
-    status: "pending",
-    total: 179.98,
-    items: [
-      { name: "Wireless Gaming Mouse", quantity: 2, price: 89.99 }
-    ],
-    shippingAddress: "321 Elm St, Houston, TX 77001",
-  },
-  {
-    id: "ORD-005",
-    customer: {
-      name: "Charlie Brown",
-      email: "charlie@example.com",
-    },
-    date: "2024-01-11",
-    status: "cancelled",
-    total: 1749.98,
-    items: [
-      { name: "Gaming Laptop Pro X1", quantity: 1, price: 1299.99 },
-      { name: "Gaming Chair Elite", quantity: 1, price: 449.99 }
-    ],
-    shippingAddress: "654 Maple Dr, Phoenix, AZ 85001",
-  },
-]
+interface Order {
+  id: string
+  orderNumber: string
+  customerInfo: {
+    email: string
+    firstName: string
+    lastName: string
+  }
+  date: string
+  status: string
+  paymentStatus: string
+  paymentMethod: string
+  total: number
+  items: {
+    name: string
+    quantity: number
+    price: number
+  }[]
+  shippingAddress: {
+    address: string
+    city: string
+    region: string
+    zipCode: string
+    country: string
+  }
+}
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState(initialOrders)
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
-  const [selectedOrder, setSelectedOrder] = useState<typeof initialOrders[0] | null>(null)
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+
+  useEffect(() => {
+    fetchOrders()
+  }, [])
+
+  const fetchOrders = async () => {
+    try {
+      const response = await fetch("/api/admin/orders")
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch orders")
+      }
+
+      const data = await response.json()
+      setOrders(data)
+    } catch (err) {
+      console.error("Error fetching orders:", err)
+      setError("Failed to load orders")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleUpdateStatus = async (orderId: string, orderStatus: string, paymentStatus?: string) => {
+    try {
+      const response = await fetch("/api/admin/orders", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId,
+          orderStatus,
+          paymentStatus,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to update order")
+      }
+
+      // Refresh orders
+      await fetchOrders()
+      alert("Order updated successfully!")
+    } catch (err) {
+      console.error("Error updating order:", err)
+      alert("Failed to update order")
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2 text-muted-foreground">Loading orders...</span>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <Alert className="border-red-500">
+        <AlertDescription className="text-red-600">{error}</AlertDescription>
+      </Alert>
+    )
+  }
 
   const filteredOrders = orders.filter((order) => {
+    const customerName = `${order.customerInfo.firstName} ${order.customerInfo.lastName}`
     const matchesSearch = 
-      order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customer.email.toLowerCase().includes(searchQuery.toLowerCase())
+      order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.customerInfo.email.toLowerCase().includes(searchQuery.toLowerCase())
     
     const matchesStatus = statusFilter === "all" || order.status === statusFilter
 
     return matchesSearch && matchesStatus
   })
 
-  const updateOrderStatus = (orderId: string, newStatus: string) => {
-    setOrders(orders.map(order => 
-      order.id === orderId 
-        ? { ...order, status: newStatus as typeof order.status }
-        : order
-    ))
+  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    await handleUpdateStatus(orderId, newStatus)
   }
 
   const getStatusColor = (status: string) => {
@@ -180,15 +196,15 @@ export default function OrdersPage() {
             <TableBody>
               {filteredOrders.map((order) => (
                 <TableRow key={order.id}>
-                  <TableCell className="font-medium">{order.id}</TableCell>
+                  <TableCell className="font-medium">{order.orderNumber}</TableCell>
                   <TableCell>
                     <div>
-                      <p className="font-medium">{order.customer.name}</p>
-                      <p className="text-sm text-muted-foreground">{order.customer.email}</p>
+                      <p className="font-medium">{order.customerInfo.firstName} {order.customerInfo.lastName}</p>
+                      <p className="text-sm text-muted-foreground">{order.customerInfo.email}</p>
                     </div>
                   </TableCell>
                   <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
-                  <TableCell>${order.total.toFixed(2)}</TableCell>
+                  <TableCell>₱{order.total.toFixed(2)}</TableCell>
                   <TableCell>
                     <Badge className={getStatusColor(order.status)}>
                       {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
@@ -207,7 +223,7 @@ export default function OrdersPage() {
                       </DialogTrigger>
                       <DialogContent className="max-w-2xl">
                         <DialogHeader>
-                          <DialogTitle>Order Details - {order.id}</DialogTitle>
+                          <DialogTitle>Order Details - {order.orderNumber}</DialogTitle>
                           <DialogDescription>
                             Complete order information and management
                           </DialogDescription>
@@ -224,8 +240,8 @@ export default function OrdersPage() {
                                 </CardHeader>
                                 <CardContent className="space-y-2 text-sm">
                                   <div>
-                                    <p className="font-medium">{selectedOrder.customer.name}</p>
-                                    <p className="text-muted-foreground">{selectedOrder.customer.email}</p>
+                                    <p className="font-medium">{selectedOrder.customerInfo.firstName} {selectedOrder.customerInfo.lastName}</p>
+                                    <p className="text-muted-foreground">{selectedOrder.customerInfo.email}</p>
                                   </div>
                                 </CardContent>
                               </Card>
@@ -244,7 +260,7 @@ export default function OrdersPage() {
                                   </div>
                                   <div>
                                     <p className="text-muted-foreground">Total</p>
-                                    <p className="font-medium">${selectedOrder.total.toFixed(2)}</p>
+                                    <p className="font-medium">₱{selectedOrder.total.toFixed(2)}</p>
                                   </div>
                                 </CardContent>
                               </Card>
@@ -262,7 +278,7 @@ export default function OrdersPage() {
                                       <p className="font-medium">{item.name}</p>
                                       <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                                     </div>
-                                    <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
+                                    <p className="font-medium">₱{(item.price * item.quantity).toFixed(2)}</p>
                                   </div>
                                 ))}
                               </div>
@@ -270,7 +286,9 @@ export default function OrdersPage() {
 
                             <div>
                               <h4 className="font-medium mb-2">Shipping Address</h4>
-                              <p className="text-sm text-muted-foreground">{selectedOrder.shippingAddress}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {selectedOrder.shippingAddress.address}, {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.region} {selectedOrder.shippingAddress.zipCode}, {selectedOrder.shippingAddress.country}
+                              </p>
                             </div>
 
                             <Separator />

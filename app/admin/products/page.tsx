@@ -23,6 +23,7 @@ const productSchema = z.object({
   category: z.string().min(1, "Please select a category"),
   stock: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Stock must be a non-negative number"),
   status: z.enum(["active", "inactive", "out_of_stock"]),
+  images: z.string().optional(),
 })
 
 type ProductFormData = z.infer<typeof productSchema>
@@ -101,6 +102,7 @@ export default function ProductsPage() {
       category: "",
       stock: "",
       status: "active",
+      images: "",
     },
   })
 
@@ -115,6 +117,7 @@ export default function ProductsPage() {
     try {
       if (editingProduct) {
         // Update existing product via API
+        const imageUrls = data.images ? data.images.split(',').map(url => url.trim()).filter(url => url) : []
         const response = await fetch(`/api/products/${editingProduct.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -125,6 +128,7 @@ export default function ProductsPage() {
             category: data.category,
             stock: Number(data.stock),
             status: data.status,
+            images: imageUrls.length > 0 ? imageUrls : undefined,
           }),
         })
         
@@ -133,6 +137,7 @@ export default function ProductsPage() {
         }
       } else {
         // Add new product via API
+        const imageUrls = data.images ? data.images.split(',').map(url => url.trim()).filter(url => url) : []
         const response = await fetch("/api/products", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -143,6 +148,7 @@ export default function ProductsPage() {
             category: data.category,
             stock: Number(data.stock),
             status: data.status,
+            images: imageUrls.length > 0 ? imageUrls : undefined,
           }),
         })
         
@@ -162,7 +168,7 @@ export default function ProductsPage() {
     }
   }
 
-  const handleEdit = (product: typeof initialProducts[0]) => {
+  const handleEdit = (product: any) => {
     setEditingProduct(product)
     form.reset({
       name: product.name,
@@ -171,6 +177,7 @@ export default function ProductsPage() {
       category: product.category,
       stock: String(product.stock),
       status: product.status,
+      images: product.images ? product.images.join(', ') : "",
     })
     setIsDialogOpen(true)
   }
@@ -260,6 +267,26 @@ export default function ProductsPage() {
                           {...field} 
                         />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="images"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Product Images (URLs)</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Enter image URLs separated by commas&#10;Example:&#10;https://example.com/image1.jpg, https://example.com/image2.jpg"
+                          className="min-h-[80px]"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <p className="text-xs text-muted-foreground">
+                        Separate multiple image URLs with commas
+                      </p>
                       <FormMessage />
                     </FormItem>
                   )}

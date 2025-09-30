@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { products } from "@/lib/products"
 import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 import { ProductCard } from "@/components/product-card"
 import { CartSidebar } from "@/components/cart-sidebar"
 import { InfiniteScrollProducts } from "@/components/infinite-scroll-products"
@@ -41,6 +42,8 @@ export default function HomePage() {
         </div>
       </main>
 
+      <Footer />
+      
       <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </div>
   )

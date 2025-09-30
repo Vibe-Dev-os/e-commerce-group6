@@ -2,6 +2,7 @@ import mongoose, { Schema, models } from "mongoose"
 
 export interface IOrder {
   orderNumber: string
+  userId?: string
   customerInfo: {
     email: string
     firstName: string
@@ -39,6 +40,10 @@ const OrderSchema = new Schema<IOrder>(
       type: String,
       required: true,
       unique: true,
+    },
+    userId: {
+      type: String,
+      required: false,
     },
     customerInfo: {
       email: { type: String, required: true },
@@ -91,6 +96,7 @@ const OrderSchema = new Schema<IOrder>(
 
 // Index for faster queries
 OrderSchema.index({ orderNumber: 1 })
+OrderSchema.index({ userId: 1 })
 OrderSchema.index({ "customerInfo.email": 1 })
 OrderSchema.index({ orderStatus: 1 })
 

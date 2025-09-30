@@ -8,8 +8,8 @@ import { Providers } from "@/components/providers"
 import { Suspense } from "react"
 
 export const metadata: Metadata = {
-  title: "ACME STORE",
-  description: "Modern e-commerce store built with Next.js",
+  title: "NEXUS TECH - Gaming Laptops & Accessories",
+  description: "Your ultimate destination for gaming laptops and accessories. Made with ❤️ by Group 6",
   generator: "v0.app",
 }
 

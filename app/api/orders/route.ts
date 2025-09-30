@@ -1,9 +1,57 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import connectDB from "@/lib/mongodb"
 import Order from "@/models/Order"
 
+// GET - Fetch user's orders
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      )
+    }
+
+    await connectDB()
+
+    // Fetch orders for this user
+    const orders = await Order.find({ userId: session.user.id })
+      .sort({ createdAt: -1 }) // Most recent first
+      .lean()
+
+    // Format orders for response
+    const formattedOrders = orders.map((order) => ({
+      id: order._id.toString(),
+      orderNumber: order.orderNumber,
+      date: order.createdAt,
+      status: order.orderStatus,
+      paymentStatus: order.paymentStatus,
+      paymentMethod: order.paymentMethod,
+      total: order.total,
+      items: order.items,
+      shippingAddress: order.shippingAddress,
+    }))
+
+    return NextResponse.json(formattedOrders)
+  } catch (error) {
+    console.error("Fetch orders error:", error)
+    return NextResponse.json(
+      { error: "Failed to fetch orders" },
+      { status: 500 }
+    )
+  }
+}
+
+// POST - Create new order
 export async function POST(request: NextRequest) {
   try {
+    // Get session to link order to user
+    const session = await getServerSession(authOptions)
+    
     const body = await request.json()
     
     const {
@@ -40,9 +88,10 @@ export async function POST(request: NextRequest) {
     // Generate order number
     const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
 
-    // Create the order
+    // Create the order with userId if logged in
     const order = await Order.create({
       orderNumber,
+      userId: session?.user?.id, // Link to user if logged in
       customerInfo,
       shippingAddress,
       items,

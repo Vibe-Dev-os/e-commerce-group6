@@ -15,14 +15,13 @@ export interface Product {
 export const products: Product[] = [
   {
     id: "predator-helios-gaming-laptop",
-    name: "Predator Helios Gaming Laptop",
-    price: 1899.0,
+    name: "Acer Predator Helios 300",
+    price: 89999.0,
     description:
       "Intel Core i9-13900HX, NVIDIA RTX 4070, 32GB DDR5 RAM, 1TB NVMe SSD. 165Hz QHD display for ultimate gaming performance.",
     images: [
-      "/black-gaming-laptop-with-rgb-keyboard.jpg",
-      "/black-gaming-laptop-side-view.jpg",
-      "/black-gaming-laptop-open-display.jpg",
+      "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=1200&q=80",
+      "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=1200&q=80",
     ],
     colors: [
       { name: "Black", value: "black" },
@@ -33,10 +32,10 @@ export const products: Product[] = [
   },
   {
     id: "rog-strix-gaming-laptop",
-    name: "ROG Strix Gaming Laptop",
-    price: 2299.0,
+    name: "ASUS ROG Strix G16",
+    price: 129999.0,
     description: "AMD Ryzen 9 7945HX, NVIDIA RTX 4080, 32GB DDR5 RAM, 2TB NVMe SSD. 240Hz FHD display with G-SYNC.",
-    images: ["/black-red-gaming-laptop-with-backlit-keyboard.jpg"],
+    images: ["https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=1200&q=80"],
     colors: [
       { name: "Black", value: "black" },
       { name: "White", value: "white" },
@@ -46,10 +45,10 @@ export const products: Product[] = [
   },
   {
     id: "legion-pro-gaming-laptop",
-    name: "Legion Pro Gaming Laptop",
-    price: 1599.0,
+    name: "Lenovo Legion Pro 5",
+    price: 74999.0,
     description: "Intel Core i7-13700HX, NVIDIA RTX 4060, 16GB DDR5 RAM, 512GB NVMe SSD. 144Hz FHD display.",
-    images: ["/gray-gaming-laptop-with-white-backlit-keyboard.jpg"],
+    images: ["https://images.unsplash.com/photo-1625842268584-8f3296236761?w=1200&q=80"],
     colors: [
       { name: "Gray", value: "gray" },
       { name: "Black", value: "black" },
@@ -60,10 +59,10 @@ export const products: Product[] = [
   {
     id: "razer-deathadder-gaming-mouse",
     name: "Razer DeathAdder V3 Pro",
-    price: 149.0,
+    price: 8499.0,
     description:
       "Wireless gaming mouse with Focus Pro 30K optical sensor, 90-hour battery life, and customizable RGB lighting.",
-    images: ["/black-wireless-gaming-mouse-with-rgb.jpg"],
+    images: ["https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=1200&q=80"],
     colors: [
       { name: "Black", value: "black" },
       { name: "White", value: "white" },
@@ -73,10 +72,10 @@ export const products: Product[] = [
   },
   {
     id: "logitech-g502-gaming-mouse",
-    name: "Logitech G502 X Plus",
-    price: 159.0,
+    name: "Logitech G502 X LIGHTSPEED",
+    price: 8999.0,
     description: "Wireless gaming mouse with HERO 25K sensor, 11 programmable buttons, and LIGHTSYNC RGB.",
-    images: ["/black-gaming-mouse-with-side-buttons.jpg"],
+    images: ["https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=1200&q=80"],
     colors: [
       { name: "Black", value: "black" },
       { name: "White", value: "white" },
@@ -86,10 +85,10 @@ export const products: Product[] = [
   },
   {
     id: "steelseries-aerox-gaming-mouse",
-    name: "SteelSeries Aerox 9",
-    price: 129.0,
+    name: "SteelSeries Aerox 9 Wireless",
+    price: 7299.0,
     description: "Ultra-lightweight wireless gaming mouse with 18,000 CPI TrueMove Air sensor and 12 side buttons.",
-    images: ["/white-lightweight-gaming-mouse.jpg"],
+    images: ["https://images.unsplash.com/photo-1586165368502-1bad197a6461?w=1200&q=80"],
     colors: [
       { name: "Black", value: "black" },
       { name: "White", value: "white" },
@@ -100,10 +99,10 @@ export const products: Product[] = [
   {
     id: "secretlab-titan-gaming-chair",
     name: "Secretlab Titan Evo 2024",
-    price: 549.0,
+    price: 30999.0,
     description:
       "Premium gaming chair with NEO Hybrid Leatherette, 4D armrests, and full metal frame. Supports up to 290 lbs.",
-    images: ["/black-leather-gaming-chair-with-lumbar-support.jpg"],
+    images: ["https://images.unsplash.com/photo-1580480055273-228ff5388ef8?w=1200&q=80"],
     colors: [
       { name: "Black", value: "black" },
       { name: "Blue", value: "blue" },
@@ -115,9 +114,9 @@ export const products: Product[] = [
   {
     id: "dxracer-master-gaming-chair",
     name: "DXRacer Master Series",
-    price: 499.0,
+    price: 28199.0,
     description: "Ergonomic gaming chair with premium PU leather, adjustable lumbar support, and 4D armrests.",
-    images: ["/black-red-racing-style-gaming-chair.jpg"],
+    images: ["https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=1200&q=80"],
     colors: [
       { name: "Black", value: "black" },
       { name: "Red", value: "red" },
@@ -129,9 +128,9 @@ export const products: Product[] = [
   {
     id: "msi-raider-gaming-laptop",
     name: "MSI Raider GE78 HX",
-    price: 2599.0,
+    price: 146999.0,
     description: "Intel Core i9-13980HX, NVIDIA RTX 4090, 64GB DDR5 RAM, 4TB NVMe SSD. 240Hz QHD+ display with Mini LED.",
-    images: ["/black-gaming-laptop-with-rgb-keyboard.jpg"],
+    images: ["https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=1200&q=80"],
     colors: [
       { name: "Black", value: "black" },
       { name: "Titanium", value: "gray" },
@@ -142,9 +141,9 @@ export const products: Product[] = [
   {
     id: "alienware-x17-gaming-laptop",
     name: "Alienware x17 R2",
-    price: 2199.0,
+    price: 124299.0,
     description: "Intel Core i9-12900HK, NVIDIA RTX 4080, 32GB DDR5 RAM, 2TB NVMe SSD. 360Hz FHD display.",
-    images: ["/black-gaming-laptop-open-display.jpg"],
+    images: ["https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=1200&q=80"],
     colors: [
       { name: "Lunar Light", value: "white" },
       { name: "Dark Side", value: "black" },
@@ -155,9 +154,9 @@ export const products: Product[] = [
   {
     id: "gigabyte-aorus-gaming-laptop",
     name: "Gigabyte AORUS 17X",
-    price: 1999.0,
+    price: 112999.0,
     description: "Intel Core i9-13900HX, NVIDIA RTX 4070, 32GB DDR5 RAM, 1TB NVMe SSD. 300Hz QHD display.",
-    images: ["/black-gaming-laptop-side-view.jpg"],
+    images: ["https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=1200&q=80"],
     colors: [
       { name: "Black", value: "black" },
     ],
@@ -167,9 +166,9 @@ export const products: Product[] = [
   {
     id: "corsair-darkcore-gaming-mouse",
     name: "Corsair Dark Core RGB Pro",
-    price: 89.0,
+    price: 5029.0,
     description: "Wireless gaming mouse with 18,000 DPI sensor, Qi wireless charging, and customizable RGB.",
-    images: ["/black-wireless-gaming-mouse-with-rgb.jpg"],
+    images: ["https://images.unsplash.com/photo-1563297007-0686b7003af7?w=1200&q=80"],
     colors: [
       { name: "Black", value: "black" },
     ],

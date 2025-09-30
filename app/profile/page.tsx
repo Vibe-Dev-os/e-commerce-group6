@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { ProtectedRoute } from "@/components/auth/protected-route"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -13,6 +14,7 @@ import * as z from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
+import { Home } from "lucide-react"
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -39,11 +41,25 @@ function ProfileContent() {
     setMessage("")
 
     try {
-      // In a real app, you would call your update profile API here
-      await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate API call
-      setMessage("Profile updated successfully!")
+      const response = await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        setMessage(result.error || "Failed to update profile")
+        return
+      }
+
+      setMessage("✅ Profile updated successfully!")
+      
+      // Refresh session to get updated data
+      window.location.reload()
     } catch (error) {
-      setMessage("An error occurred. Please try again.")
+      setMessage("❌ An error occurred. Please try again.")
     } finally {
       setIsLoading(false)
     }
@@ -52,11 +68,19 @@ function ProfileContent() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-2xl">
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Profile</h1>
-          <p className="text-muted-foreground">
-            Manage your account settings and preferences.
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Profile</h1>
+            <p className="text-muted-foreground">
+              Manage your account settings and preferences.
+            </p>
+          </div>
+          <Button variant="outline" asChild>
+            <Link href="/">
+              <Home className="mr-2 h-4 w-4" />
+              Back to Store
+            </Link>
+          </Button>
         </div>
 
         <Separator />

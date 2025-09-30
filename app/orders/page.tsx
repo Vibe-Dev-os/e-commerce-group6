@@ -1,43 +1,81 @@
 "use client"
 
+import { useState, useEffect } from "react"
+import Link from "next/link"
 import { ProtectedRoute } from "@/components/auth/protected-route"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Package, Calendar, CreditCard } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Package, Calendar, CreditCard, Loader2, ArrowLeft, Home } from "lucide-react"
 
-// Mock orders data
-const mockOrders = [
-  {
-    id: "ORD-001",
-    date: "2024-01-15",
-    status: "delivered",
-    total: 1299.99,
-    items: [
-      { name: "Gaming Laptop Pro", quantity: 1, price: 1299.99 }
-    ]
-  },
-  {
-    id: "ORD-002", 
-    date: "2024-01-10",
-    status: "shipped",
-    total: 89.99,
-    items: [
-      { name: "Wireless Gaming Mouse", quantity: 1, price: 89.99 }
-    ]
-  },
-  {
-    id: "ORD-003",
-    date: "2024-01-05", 
-    status: "processing",
-    total: 449.99,
-    items: [
-      { name: "Gaming Chair Elite", quantity: 1, price: 449.99 }
-    ]
-  }
-]
+interface Order {
+  id: string
+  orderNumber: string
+  date: string
+  status: string
+  paymentStatus: string
+  paymentMethod: string
+  total: number
+  items: {
+    name: string
+    quantity: number
+    price: number
+    color?: string
+    size?: string
+    image?: string
+  }[]
+}
 
 function OrdersContent() {
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+    fetchOrders()
+  }, [])
+
+  const fetchOrders = async () => {
+    try {
+      const response = await fetch("/api/orders")
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch orders")
+      }
+
+      const data = await response.json()
+      setOrders(data)
+    } catch (err) {
+      console.error("Error fetching orders:", err)
+      setError("Failed to load orders")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="container mx-auto py-8 px-4 max-w-4xl">
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-2 text-muted-foreground">Loading orders...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto py-8 px-4 max-w-4xl">
+        <Card className="border-red-500">
+          <CardContent className="py-8 text-center">
+            <p className="text-red-600">{error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
   const getStatusColor = (status: string) => {
     switch (status) {
       case "delivered":
@@ -54,22 +92,38 @@ function OrdersContent() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Order History</h1>
-          <p className="text-muted-foreground">
-            View and track your recent orders.
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Order History</h1>
+            <p className="text-muted-foreground">
+              View and track your recent orders.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" asChild>
+              <Link href="/">
+                <Home className="mr-2 h-4 w-4" />
+                Home
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/profile">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Profile
+              </Link>
+            </Button>
+          </div>
         </div>
 
         <Separator />
 
         <div className="space-y-4">
-          {mockOrders.map((order) => (
+          {orders.map((order) => (
             <Card key={order.id}>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <CardTitle className="text-lg">Order {order.id}</CardTitle>
+                    <CardTitle className="text-lg">{order.orderNumber}</CardTitle>
                     <CardDescription className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
                       {new Date(order.date).toLocaleDateString()}
@@ -109,7 +163,7 @@ function OrdersContent() {
           ))}
         </div>
 
-        {mockOrders.length === 0 && (
+        {orders.length === 0 && (
           <Card>
             <CardContent className="py-8 text-center">
               <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />

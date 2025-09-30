@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { ProtectedRoute } from "@/components/auth/protected-route"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -8,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { useState } from "react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Home } from "lucide-react"
 
 function SettingsContent() {
   const [emailNotifications, setEmailNotifications] = useState(true)
@@ -30,11 +32,19 @@ function SettingsContent() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-2xl">
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Settings</h1>
-          <p className="text-muted-foreground">
-            Manage your account preferences and notifications.
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Settings</h1>
+            <p className="text-muted-foreground">
+              Manage your account preferences and notifications.
+            </p>
+          </div>
+          <Button variant="outline" asChild>
+            <Link href="/">
+              <Home className="mr-2 h-4 w-4" />
+              Back to Store
+            </Link>
+          </Button>
         </div>
 
         <Separator />

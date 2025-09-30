@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,74 +8,73 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Eye, Search, Mail, Calendar, ShieldCheck } from "lucide-react"
+import { Eye, Search, Mail, Calendar, ShieldCheck, Loader2, Trash2 } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
-// Mock users data
-const initialUsers = [
-  {
-    id: "1",
-    name: "Admin User",
-    email: "admin@example.com",
-    role: "admin",
-    status: "active",
-    joinDate: "2023-01-01",
-    lastLogin: "2024-01-15",
-    totalOrders: 0,
-    totalSpent: 0,
-  },
-  {
-    id: "2",
-    name: "John Doe",
-    email: "john@example.com",
-    role: "user",
-    status: "active",
-    joinDate: "2023-06-15",
-    lastLogin: "2024-01-15",
-    totalOrders: 3,
-    totalSpent: 1839.97,
-  },
-  {
-    id: "3",
-    name: "Jane Smith",
-    email: "jane@example.com",
-    role: "user",
-    status: "active",
-    joinDate: "2023-08-20",
-    lastLogin: "2024-01-14",
-    totalOrders: 1,
-    totalSpent: 89.99,
-  },
-  {
-    id: "4",
-    name: "Bob Johnson",
-    email: "bob@example.com",
-    role: "user",
-    status: "active",
-    joinDate: "2023-10-10",
-    lastLogin: "2024-01-13",
-    totalOrders: 2,
-    totalSpent: 899.98,
-  },
-  {
-    id: "5",
-    name: "Alice Williams",
-    email: "alice@example.com",
-    role: "user",
-    status: "suspended",
-    joinDate: "2023-12-01",
-    lastLogin: "2024-01-10",
-    totalOrders: 1,
-    totalSpent: 179.98,
-  },
-]
+interface User {
+  id: string
+  name: string
+  email: string
+  role: "user" | "admin"
+  createdAt: string
+  updatedAt: string
+}
 
 export default function UsersPage() {
-  const [users, setUsers] = useState(initialUsers)
+  const [users, setUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [roleFilter, setRoleFilter] = useState("all")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [selectedUser, setSelectedUser] = useState<typeof initialUsers[0] | null>(null)
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+
+  useEffect(() => {
+    fetchUsers()
+  }, [])
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch("/api/admin/users")
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch users")
+      }
+
+      const data = await response.json()
+      setUsers(data)
+    } catch (err) {
+      console.error("Error fetching users:", err)
+      setError("Failed to load users")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm("Are you sure you want to delete this user?")) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/admin/users?id=${userId}`, {
+        method: "DELETE",
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        alert(data.error || "Failed to delete user")
+        return
+      }
+
+      // Remove user from list
+      setUsers(users.filter(u => u.id !== userId))
+      alert("User deleted successfully")
+    } catch (err) {
+      console.error("Error deleting user:", err)
+      alert("Failed to delete user")
+    }
+  }
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch = 
@@ -83,38 +82,25 @@ export default function UsersPage() {
       user.email.toLowerCase().includes(searchQuery.toLowerCase())
     
     const matchesRole = roleFilter === "all" || user.role === roleFilter
-    const matchesStatus = statusFilter === "all" || user.status === statusFilter
 
-    return matchesSearch && matchesRole && matchesStatus
+    return matchesSearch && matchesRole
   })
 
-  const updateUserRole = (userId: string, newRole: string) => {
-    setUsers(users.map(user => 
-      user.id === userId 
-        ? { ...user, role: newRole as typeof user.role }
-        : user
-    ))
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2 text-muted-foreground">Loading users...</span>
+      </div>
+    )
   }
 
-  const updateUserStatus = (userId: string, newStatus: string) => {
-    setUsers(users.map(user => 
-      user.id === userId 
-        ? { ...user, status: newStatus as typeof user.status }
-        : user
-    ))
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-      case "suspended":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
-      case "inactive":
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
-      default:
-        return ""
-    }
+  if (error) {
+    return (
+      <Alert className="border-red-500">
+        <AlertDescription className="text-red-600">{error}</AlertDescription>
+      </Alert>
+    )
   }
 
   const getRoleColor = (role: string) => {
@@ -150,17 +136,6 @@ export default function UsersPage() {
             <SelectItem value="user">User</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="suspended">Suspended</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       <Card>
@@ -175,9 +150,8 @@ export default function UsersPage() {
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Total Orders</TableHead>
-                <TableHead>Total Spent</TableHead>
+                <TableHead>Created At</TableHead>
+                <TableHead>Last Updated</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -191,14 +165,10 @@ export default function UsersPage() {
                       {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                     </Badge>
                   </TableCell>
-                  <TableCell>
-                    <Badge className={getStatusColor(user.status)}>
-                      {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{user.totalOrders}</TableCell>
-                  <TableCell>${user.totalSpent.toFixed(2)}</TableCell>
+                  <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell>{new Date(user.updatedAt).toLocaleDateString()}</TableCell>
                   <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button
@@ -209,140 +179,71 @@ export default function UsersPage() {
                           <Eye className="h-4 w-4" />
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-2xl">
+                      <DialogContent className="max-w-md">
                         <DialogHeader>
                           <DialogTitle>User Details - {user.name}</DialogTitle>
                           <DialogDescription>
-                            Manage user account and permissions
+                            View user account information
                           </DialogDescription>
                         </DialogHeader>
                         {selectedUser && (
-                          <div className="space-y-6">
-                            <div className="grid grid-cols-2 gap-4">
-                              <Card>
-                                <CardHeader className="pb-3">
-                                  <CardTitle className="text-sm flex items-center gap-2">
-                                    <Mail className="h-4 w-4" />
-                                    Contact Information
-                                  </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-2 text-sm">
-                                  <div>
-                                    <p className="text-muted-foreground">Name</p>
-                                    <p className="font-medium">{selectedUser.name}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-muted-foreground">Email</p>
-                                    <p className="font-medium">{selectedUser.email}</p>
-                                  </div>
-                                </CardContent>
-                              </Card>
+                          <div className="space-y-4">
+                            <Card>
+                              <CardHeader className="pb-3">
+                                <CardTitle className="text-sm flex items-center gap-2">
+                                  <Mail className="h-4 w-4" />
+                                  Contact Information
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent className="space-y-2 text-sm">
+                                <div>
+                                  <p className="text-muted-foreground">Name</p>
+                                  <p className="font-medium">{selectedUser.name}</p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground">Email</p>
+                                  <p className="font-medium">{selectedUser.email}</p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground">Role</p>
+                                  <Badge className={getRoleColor(selectedUser.role)}>
+                                    {selectedUser.role.toUpperCase()}
+                                  </Badge>
+                                </div>
+                              </CardContent>
+                            </Card>
 
-                              <Card>
-                                <CardHeader className="pb-3">
-                                  <CardTitle className="text-sm flex items-center gap-2">
-                                    <Calendar className="h-4 w-4" />
-                                    Account Activity
-                                  </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-2 text-sm">
-                                  <div>
-                                    <p className="text-muted-foreground">Joined</p>
-                                    <p className="font-medium">{new Date(selectedUser.joinDate).toLocaleDateString()}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-muted-foreground">Last Login</p>
-                                    <p className="font-medium">{new Date(selectedUser.lastLogin).toLocaleDateString()}</p>
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                              <Card>
-                                <CardHeader className="pb-3">
-                                  <CardTitle className="text-sm">Order Statistics</CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-2 text-sm">
-                                  <div>
-                                    <p className="text-muted-foreground">Total Orders</p>
-                                    <p className="text-2xl font-bold">{selectedUser.totalOrders}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-muted-foreground">Total Spent</p>
-                                    <p className="text-2xl font-bold">${selectedUser.totalSpent.toFixed(2)}</p>
-                                  </div>
-                                </CardContent>
-                              </Card>
-
-                              <Card>
-                                <CardHeader className="pb-3">
-                                  <CardTitle className="text-sm flex items-center gap-2">
-                                    <ShieldCheck className="h-4 w-4" />
-                                    Account Settings
-                                  </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-2 text-sm">
-                                  <div className="flex items-center gap-2">
-                                    <Badge className={getRoleColor(selectedUser.role)}>
-                                      {selectedUser.role.toUpperCase()}
-                                    </Badge>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <Badge className={getStatusColor(selectedUser.status)}>
-                                      {selectedUser.status.toUpperCase()}
-                                    </Badge>
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            </div>
-
-                            <Separator />
-
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <h4 className="font-medium mb-2">Update Role</h4>
-                                <Select
-                                  value={selectedUser.role}
-                                  onValueChange={(value) => {
-                                    updateUserRole(selectedUser.id, value)
-                                    setSelectedUser({ ...selectedUser, role: value as typeof selectedUser.role })
-                                  }}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="user">User</SelectItem>
-                                    <SelectItem value="admin">Admin</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-
-                              <div>
-                                <h4 className="font-medium mb-2">Update Status</h4>
-                                <Select
-                                  value={selectedUser.status}
-                                  onValueChange={(value) => {
-                                    updateUserStatus(selectedUser.id, value)
-                                    setSelectedUser({ ...selectedUser, status: value as typeof selectedUser.status })
-                                  }}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="active">Active</SelectItem>
-                                    <SelectItem value="suspended">Suspended</SelectItem>
-                                    <SelectItem value="inactive">Inactive</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            </div>
+                            <Card>
+                              <CardHeader className="pb-3">
+                                <CardTitle className="text-sm flex items-center gap-2">
+                                  <Calendar className="h-4 w-4" />
+                                  Account Activity
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent className="space-y-2 text-sm">
+                                <div>
+                                  <p className="text-muted-foreground">Joined</p>
+                                  <p className="font-medium">{new Date(selectedUser.createdAt).toLocaleString()}</p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground">Last Updated</p>
+                                  <p className="font-medium">{new Date(selectedUser.updatedAt).toLocaleString()}</p>
+                                </div>
+                              </CardContent>
+                            </Card>
                           </div>
                         )}
                       </DialogContent>
                     </Dialog>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteUser(user.id)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

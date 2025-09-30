@@ -33,9 +33,11 @@ export default function CheckoutPage() {
   }, [session, status, router])
   const [formData, setFormData] = useState({
     email: "",
+    phone: "",
     firstName: "",
     lastName: "",
     address: "",
+    barangay: "",
     apartment: "",
     city: "",
     region: "",
@@ -84,11 +86,13 @@ export default function CheckoutPage() {
         const orderData = {
           customerInfo: {
             email: formData.email,
+            phone: formData.phone,
             firstName: formData.firstName,
             lastName: formData.lastName,
           },
           shippingAddress: {
             address: formData.address,
+            barangay: formData.barangay,
             apartment: formData.apartment,
             city: formData.city,
             region: formData.region,
@@ -195,10 +199,20 @@ export default function CheckoutPage() {
                   <input
                     type="email"
                     name="email"
-                    placeholder="Email or mobile phone number"
+                    placeholder="Email address"
                     value={formData.email}
                     onChange={handleInputChange}
                     required
+                    className="h-12 w-full rounded-md border border-input bg-background px-4 text-sm outline-none ring-offset-background transition-colors placeholder:text-muted-foreground focus-visible:border-blue-600 focus-visible:ring-2 focus-visible:ring-blue-600"
+                  />
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder="Mobile number (e.g., 09171234567)"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    required
+                    pattern="[0-9]{11}"
                     className="h-12 w-full rounded-md border border-input bg-background px-4 text-sm outline-none ring-offset-background transition-colors placeholder:text-muted-foreground focus-visible:border-blue-600 focus-visible:ring-2 focus-visible:ring-blue-600"
                   />
                   <label className="mt-3 flex items-center gap-2">
@@ -209,25 +223,24 @@ export default function CheckoutPage() {
                       onChange={handleInputChange}
                       className="h-4 w-4 rounded border-input"
                     />
-                    <span className="text-sm">Email me with news and offers</span>
+                    <span className="text-sm">Send me news and exclusive offers via SMS/Email</span>
                   </label>
                 </div>
 
                 <div>
                   <h2 className="mb-4 text-xl font-bold">Shipping address</h2>
                   <div className="space-y-4">
-                    <select
-                      name="country"
-                      value={formData.country}
-                      onChange={handleInputChange}
-                      required
-                      className="h-12 w-full rounded-md border border-input bg-background px-4 text-sm outline-none ring-offset-background transition-colors focus-visible:border-blue-600 focus-visible:ring-2 focus-visible:ring-blue-600"
-                    >
-                      <option>Philippines</option>
-                      <option>United States</option>
-                      <option>Singapore</option>
-                      <option>Malaysia</option>
-                    </select>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value="Philippines"
+                        disabled
+                        className="h-12 w-full rounded-md border border-input bg-muted px-4 text-sm outline-none cursor-not-allowed"
+                      />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                        🇵🇭 Shipping within Philippines only
+                      </span>
+                    </div>
 
                     <div className="grid gap-4 sm:grid-cols-2">
                       <input
@@ -252,7 +265,7 @@ export default function CheckoutPage() {
                     <input
                       type="text"
                       name="address"
-                      placeholder="Address"
+                      placeholder="House No., Building, Street Name"
                       value={formData.address}
                       onChange={handleInputChange}
                       required
@@ -261,8 +274,18 @@ export default function CheckoutPage() {
 
                     <input
                       type="text"
+                      name="barangay"
+                      placeholder="Barangay"
+                      value={formData.barangay}
+                      onChange={handleInputChange}
+                      required
+                      className="h-12 w-full rounded-md border border-input bg-background px-4 text-sm outline-none ring-offset-background transition-colors placeholder:text-muted-foreground focus-visible:border-blue-600 focus-visible:ring-2 focus-visible:ring-blue-600"
+                    />
+
+                    <input
+                      type="text"
                       name="apartment"
-                      placeholder="Apartment, suite, etc. (optional)"
+                      placeholder="Unit/Floor No., Building Name (optional)"
                       value={formData.apartment}
                       onChange={handleInputChange}
                       className="h-12 w-full rounded-md border border-input bg-background px-4 text-sm outline-none ring-offset-background transition-colors placeholder:text-muted-foreground focus-visible:border-blue-600 focus-visible:ring-2 focus-visible:ring-blue-600"
@@ -307,10 +330,12 @@ export default function CheckoutPage() {
                       <input
                         type="text"
                         name="zipCode"
-                        placeholder="Postal Code"
+                        placeholder="Postal/ZIP Code"
                         value={formData.zipCode}
                         onChange={handleInputChange}
                         required
+                        pattern="[0-9]{4}"
+                        maxLength={4}
                         className="h-12 w-full rounded-md border border-input bg-background px-4 text-sm outline-none ring-offset-background transition-colors placeholder:text-muted-foreground focus-visible:border-blue-600 focus-visible:ring-2 focus-visible:ring-blue-600"
                       />
                     </div>

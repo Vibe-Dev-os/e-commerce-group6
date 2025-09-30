@@ -1,105 +1,111 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { DollarSign, ShoppingCart, Package, Users, TrendingUp, ArrowUpRight, ArrowDownRight } from "lucide-react"
+import { DollarSign, ShoppingCart, Package, Users, TrendingUp, Loader2 } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
-// Mock analytics data
-const stats = [
-  {
-    title: "Total Revenue",
-    value: "$45,231.89",
-    change: "+20.1%",
-    trend: "up",
-    icon: DollarSign,
-    description: "from last month"
-  },
-  {
-    title: "Orders",
-    value: "350",
-    change: "+12.5%",
-    trend: "up",
-    icon: ShoppingCart,
-    description: "from last month"
-  },
-  {
-    title: "Products",
-    value: "127",
-    change: "+5.2%",
-    trend: "up",
-    icon: Package,
-    description: "from last month"
-  },
-  {
-    title: "Customers",
-    value: "1,234",
-    change: "+8.7%",
-    trend: "up",
-    icon: Users,
-    description: "from last month"
-  },
-]
-
-const recentOrders = [
-  {
-    id: "ORD-001",
-    customer: "John Doe",
-    amount: 1299.99,
-    status: "delivered",
-    date: "2024-01-15"
-  },
-  {
-    id: "ORD-002",
-    customer: "Jane Smith",
-    amount: 89.99,
-    status: "shipped",
-    date: "2024-01-14"
-  },
-  {
-    id: "ORD-003",
-    customer: "Bob Johnson",
-    amount: 449.99,
-    status: "processing",
-    date: "2024-01-13"
-  },
-  {
-    id: "ORD-004",
-    customer: "Alice Williams",
-    amount: 179.98,
-    status: "pending",
-    date: "2024-01-12"
-  },
-]
-
-const topProducts = [
-  {
-    name: "Gaming Laptop Pro X1",
-    category: "Laptops",
-    sales: 45,
-    revenue: 58499.55
-  },
-  {
-    name: "Gaming Chair Elite",
-    category: "Chairs",
-    sales: 38,
-    revenue: 17099.62
-  },
-  {
-    name: "Wireless Gaming Mouse",
-    category: "Mice",
-    sales: 92,
-    revenue: 8279.08
-  },
-  {
-    name: "Mechanical Keyboard RGB",
-    category: "Keyboards",
-    sales: 67,
-    revenue: 10049.33
-  },
-]
+interface DashboardData {
+  stats: {
+    totalRevenue: number
+    totalOrders: number
+    totalProducts: number
+    totalCustomers: number
+  }
+  recentOrders: {
+    id: string
+    orderNumber: string
+    customer: string
+    amount: number
+    status: string
+    date: string
+  }[]
+  topProducts: {
+    name: string
+    category: string
+    sales: number
+    revenue: number
+  }[]
+  quickStats: {
+    avgOrderValue: number
+    lowStockItems: number
+  }
+}
 
 export default function AdminDashboard() {
+  const [data, setData] = useState<DashboardData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
+
+  const fetchDashboardData = async () => {
+    try {
+      const response = await fetch("/api/admin/stats")
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch dashboard data")
+      }
+
+      const dashboardData = await response.json()
+      setData(dashboardData)
+    } catch (err) {
+      console.error("Error fetching dashboard data:", err)
+      setError("Failed to load dashboard data")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2 text-muted-foreground">Loading dashboard...</span>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <Alert className="border-red-500">
+        <AlertDescription className="text-red-600">{error}</AlertDescription>
+      </Alert>
+    )
+  }
+
+  if (!data) return null
+
+  const stats = [
+    {
+      title: "Total Revenue",
+      value: `₱${data.stats.totalRevenue.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      icon: DollarSign,
+      description: "total sales"
+    },
+    {
+      title: "Orders",
+      value: data.stats.totalOrders.toString(),
+      icon: ShoppingCart,
+      description: "total orders"
+    },
+    {
+      title: "Products",
+      value: data.stats.totalProducts.toString(),
+      icon: Package,
+      description: "in catalog"
+    },
+    {
+      title: "Customers",
+      value: data.stats.totalCustomers.toString(),
+      icon: Users,
+      description: "registered users"
+    },
+  ]
   const getStatusColor = (status: string) => {
     switch (status) {
       case "delivered":
@@ -135,17 +141,6 @@ export default function AdminDashboard() {
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                {stat.trend === "up" ? (
-                  <span className="flex items-center text-green-600">
-                    <ArrowUpRight className="h-3 w-3" />
-                    {stat.change}
-                  </span>
-                ) : (
-                  <span className="flex items-center text-red-600">
-                    <ArrowDownRight className="h-3 w-3" />
-                    {stat.change}
-                  </span>
-                )}
                 <span>{stat.description}</span>
               </div>
             </CardContent>
@@ -171,11 +166,11 @@ export default function AdminDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentOrders.map((order) => (
+                {data.recentOrders.map((order) => (
                   <TableRow key={order.id}>
-                    <TableCell className="font-medium">{order.id}</TableCell>
+                    <TableCell className="font-medium">{order.orderNumber}</TableCell>
                     <TableCell>{order.customer}</TableCell>
-                    <TableCell>${order.amount.toFixed(2)}</TableCell>
+                    <TableCell>₱{order.amount.toFixed(2)}</TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(order.status)}>
                         {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
@@ -196,23 +191,27 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {topProducts.map((product, index) => (
-                <div key={product.name} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                      <span className="text-sm font-bold">{index + 1}</span>
+              {data.topProducts.length > 0 ? (
+                data.topProducts.map((product, index) => (
+                  <div key={product.name} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+                        <span className="text-sm font-bold">{index + 1}</span>
+                      </div>
+                      <div>
+                        <p className="font-medium">{product.name}</p>
+                        <p className="text-sm text-muted-foreground">{product.category}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium">{product.name}</p>
-                      <p className="text-sm text-muted-foreground">{product.category}</p>
+                    <div className="text-right">
+                      <p className="font-medium">₱{product.revenue.toFixed(2)}</p>
+                      <p className="text-sm text-muted-foreground">{product.sales} sales</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-medium">${product.revenue.toFixed(2)}</p>
-                    <p className="text-sm text-muted-foreground">{product.sales} sales</p>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">No sales data yet</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -231,23 +230,23 @@ export default function AdminDashboard() {
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">Average Order Value</span>
               </div>
-              <p className="text-2xl font-bold">$129.23</p>
-              <p className="text-xs text-muted-foreground">+4.3% from last month</p>
+              <p className="text-2xl font-bold">₱{data.quickStats.avgOrderValue.toFixed(2)}</p>
+              <p className="text-xs text-muted-foreground">per order</p>
             </div>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Conversion Rate</span>
+                <span className="text-sm font-medium">Total Sales</span>
               </div>
-              <p className="text-2xl font-bold">3.24%</p>
-              <p className="text-xs text-muted-foreground">+0.5% from last month</p>
+              <p className="text-2xl font-bold">₱{data.stats.totalRevenue.toFixed(2)}</p>
+              <p className="text-xs text-muted-foreground">all time</p>
             </div>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Package className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">Low Stock Items</span>
               </div>
-              <p className="text-2xl font-bold">12</p>
+              <p className="text-2xl font-bold">{data.quickStats.lowStockItems}</p>
               <p className="text-xs text-muted-foreground">Products need restock</p>
             </div>
           </div>
