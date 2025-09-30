@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -63,6 +63,34 @@ export default function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<typeof initialProducts[0] | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+
+  // Fetch products from API on mount
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch("/api/products")
+      if (response.ok) {
+        const data = await response.json()
+        // Ensure data is an array before setting
+        if (Array.isArray(data)) {
+          setProducts(data)
+        } else {
+          console.error("Products data is not an array:", data)
+          setProducts([])
+        }
+      } else {
+        console.error("Failed to fetch products, status:", response.status)
+        setProducts([])
+      }
+    } catch (error) {
+      console.error("Failed to fetch products:", error)
+      setProducts([])
+    }
+  }
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -81,39 +109,57 @@ export default function ProductsPage() {
     product.category.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  const onSubmit = (data: ProductFormData) => {
-    if (editingProduct) {
-      // Update existing product
-      setProducts(products.map(p => 
-        p.id === editingProduct.id 
-          ? {
-              ...p,
-              name: data.name,
-              description: data.description,
-              price: Number(data.price),
-              category: data.category,
-              stock: Number(data.stock),
-              status: data.status,
-            }
-          : p
-      ))
-    } else {
-      // Add new product
-      const newProduct = {
-        id: String(Date.now()),
-        name: data.name,
-        description: data.description,
-        price: Number(data.price),
-        category: data.category,
-        stock: Number(data.stock),
-        status: data.status,
-      }
-      setProducts([...products, newProduct])
-    }
+  const onSubmit = async (data: ProductFormData) => {
+    setIsLoading(true)
     
-    setIsDialogOpen(false)
-    setEditingProduct(null)
-    form.reset()
+    try {
+      if (editingProduct) {
+        // Update existing product via API
+        const response = await fetch(`/api/products/${editingProduct.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: data.name,
+            description: data.description,
+            price: Number(data.price),
+            category: data.category,
+            stock: Number(data.stock),
+            status: data.status,
+          }),
+        })
+        
+        if (response.ok) {
+          await fetchProducts() // Refresh products from server
+        }
+      } else {
+        // Add new product via API
+        const response = await fetch("/api/products", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: data.name,
+            description: data.description,
+            price: Number(data.price),
+            category: data.category,
+            stock: Number(data.stock),
+            status: data.status,
+          }),
+        })
+        
+        if (response.ok) {
+          await fetchProducts() // Refresh products from server
+        }
+      }
+      
+      setIsDialogOpen(false)
+      setEditingProduct(null)
+      form.reset()
+    } catch (error) {
+      console.error("Failed to save product:", error)
+      alert("Failed to save product. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleEdit = (product: typeof initialProducts[0]) => {
@@ -129,9 +175,20 @@ export default function ProductsPage() {
     setIsDialogOpen(true)
   }
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this product?")) {
-      setProducts(products.filter(p => p.id !== id))
+      try {
+        const response = await fetch(`/api/products/${id}`, {
+          method: "DELETE",
+        })
+        
+        if (response.ok) {
+          await fetchProducts() // Refresh products from server
+        }
+      } catch (error) {
+        console.error("Failed to delete product:", error)
+        alert("Failed to delete product. Please try again.")
+      }
     }
   }
 

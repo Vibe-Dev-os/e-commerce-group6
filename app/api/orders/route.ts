@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createOrder, type Order } from "@/lib/orders"
+import connectDB from "@/lib/mongodb"
+import Order from "@/models/Order"
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,8 +25,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Determine initial payment and order status based on payment method
-    let paymentStatus: Order["paymentStatus"] = "pending"
-    let orderStatus: Order["orderStatus"] = "processing"
+    let paymentStatus: "pending" | "paid" | "failed" = "pending"
+    let orderStatus: "processing" | "confirmed" | "shipped" | "delivered" | "cancelled" = "processing"
 
     // COD orders are pending payment until delivery
     if (paymentMethod === "cod") {
@@ -33,8 +34,15 @@ export async function POST(request: NextRequest) {
       orderStatus = "confirmed"
     }
 
+    // Connect to database
+    await connectDB()
+
+    // Generate order number
+    const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
+
     // Create the order
-    const order = createOrder({
+    const order = await Order.create({
+      orderNumber,
       customerInfo,
       shippingAddress,
       items,
@@ -50,7 +58,7 @@ export async function POST(request: NextRequest) {
     let responseData: any = {
       success: true,
       order: {
-        id: order.id,
+        id: order._id.toString(),
         orderNumber: order.orderNumber,
         total: order.total,
         paymentMethod: order.paymentMethod,
