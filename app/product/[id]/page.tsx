@@ -1,9 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { notFound } from "next/navigation"
+import { notFound, useRouter } from "next/navigation"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { useSession } from "next-auth/react"
 import { getProductById, getRelatedProducts } from "@/lib/products"
 import { useCart } from "@/lib/cart-context"
 import { formatPrice } from "@/lib/currency"
@@ -11,6 +12,9 @@ import { Header } from "@/components/header"
 import { CartSidebar } from "@/components/cart-sidebar"
 import { ProductCard } from "@/components/product-card"
 import { InfiniteScrollProducts } from "@/components/infinite-scroll-products"
+import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { LogIn } from "lucide-react"
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const product = getProductById(params.id)
@@ -19,15 +23,24 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     notFound()
   }
 
+  const router = useRouter()
+  const { data: session, status } = useSession()
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [selectedColor, setSelectedColor] = useState(product.colors[0]?.name || "")
   const [selectedSize, setSelectedSize] = useState(product.sizes[0] || "")
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [showLoginAlert, setShowLoginAlert] = useState(false)
   const { addItem } = useCart()
 
   const relatedProducts = getRelatedProducts(product.id)
 
   const handleAddToCart = () => {
+    // Check if user is authenticated
+    if (!session) {
+      setShowLoginAlert(true)
+      return
+    }
+
     addItem({
       productId: product.id,
       name: product.name,
@@ -37,6 +50,15 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       size: selectedSize,
     })
     setIsCartOpen(true)
+    setShowLoginAlert(false)
+  }
+
+  const handleLoginRedirect = () => {
+    // Save current product in session storage to return after login
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('returnToProduct', params.id)
+    }
+    router.push('/auth/signin')
   }
 
   const nextImage = () => {
@@ -162,13 +184,33 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             {/* Description */}
             <p className="text-muted-foreground">{product.description}</p>
 
+            {/* Login Alert */}
+            {showLoginAlert && (
+              <Alert className="border-amber-500 bg-amber-50 dark:bg-amber-950/20">
+                <LogIn className="h-4 w-4 text-amber-600" />
+                <AlertDescription className="flex items-center justify-between">
+                  <span className="text-sm text-amber-900 dark:text-amber-100">
+                    Please log in to add items to your cart
+                  </span>
+                  <Button 
+                    onClick={handleLoginRedirect}
+                    size="sm"
+                    className="ml-2"
+                  >
+                    Login Now
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            )}
+
             {/* Add to Cart Button */}
             <button
               onClick={handleAddToCart}
-              className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-blue-600 font-semibold text-white transition-colors hover:bg-blue-700"
+              className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-blue-600 font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={status === "loading"}
             >
               <Plus className="h-5 w-5" />
-              Add To Cart
+              {session ? "Add To Cart" : "Login to Purchase"}
             </button>
           </div>
         </div>

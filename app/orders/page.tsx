@@ -81,7 +81,7 @@ function OrdersContent() {
                     </Badge>
                     <div className="flex items-center gap-1 text-sm font-medium">
                       <CreditCard className="h-4 w-4" />
-                      ${order.total.toFixed(2)}
+                      ₱{order.total.toFixed(2)}
                     </div>
                   </div>
                 </div>
@@ -99,7 +99,7 @@ function OrdersContent() {
                           <p className="font-medium">{item.name}</p>
                           <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                         </div>
-                        <p className="font-medium">${item.price.toFixed(2)}</p>
+                        <p className="font-medium">₱{item.price.toFixed(2)}</p>
                       </div>
                     ))}
                   </div>

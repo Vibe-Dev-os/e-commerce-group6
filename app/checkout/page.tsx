@@ -2,11 +2,12 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import { ChevronRight } from "lucide-react"
+import { useSession } from "next-auth/react"
 import { useCart } from "@/lib/cart-context"
 import { formatPrice } from "@/lib/currency"
 
@@ -14,8 +15,22 @@ type CheckoutStep = "information" | "shipping" | "payment"
 
 export default function CheckoutPage() {
   const router = useRouter()
+  const { data: session, status } = useSession()
   const { items, totalPrice } = useCart()
   const [currentStep, setCurrentStep] = useState<CheckoutStep>("information")
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (status === "loading") return
+    
+    if (!session) {
+      // Save that user was trying to checkout
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('redirectAfterLogin', '/checkout')
+      }
+      router.push('/auth/signin')
+    }
+  }, [session, status, router])
   const [formData, setFormData] = useState({
     email: "",
     firstName: "",

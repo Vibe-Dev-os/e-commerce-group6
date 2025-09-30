@@ -71,11 +71,26 @@ export function AuthForm() {
       if (result?.error) {
         setError("Invalid email or password")
       } else {
-        // Check if admin user and redirect accordingly
-        if (data.email === "admin@example.com") {
+        // Check for redirect path from session storage
+        let redirectPath = "/"
+        if (typeof window !== 'undefined') {
+          const returnToProduct = sessionStorage.getItem('returnToProduct')
+          const redirectAfterLogin = sessionStorage.getItem('redirectAfterLogin')
+          
+          if (redirectAfterLogin) {
+            redirectPath = redirectAfterLogin
+            sessionStorage.removeItem('redirectAfterLogin')
+          } else if (returnToProduct) {
+            redirectPath = `/product/${returnToProduct}`
+            sessionStorage.removeItem('returnToProduct')
+          }
+        }
+
+        // Admin users go to admin panel unless they have a specific redirect
+        if (data.email === "admin@example.com" && redirectPath === "/") {
           router.push("/admin/products")
         } else {
-          router.push("/")
+          router.push(redirectPath)
         }
         router.refresh()
       }
@@ -91,9 +106,52 @@ export function AuthForm() {
     setError("")
 
     try {
-      // In a real app, you would call your signup API here
-      // For now, we'll just show a message
-      setError("Signup functionality not implemented yet. Use existing credentials to login.")
+      // Call registration API
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          password: data.password,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        setError(result.error || "Failed to create account")
+        return
+      }
+
+      // Account created successfully, now login automatically
+      const loginResult = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      })
+
+      if (loginResult?.error) {
+        setError("Account created but login failed. Please try logging in manually.")
+      } else {
+        // Check for redirect path
+        let redirectPath = "/"
+        if (typeof window !== 'undefined') {
+          const returnToProduct = sessionStorage.getItem('returnToProduct')
+          const redirectAfterLogin = sessionStorage.getItem('redirectAfterLogin')
+          
+          if (redirectAfterLogin) {
+            redirectPath = redirectAfterLogin
+            sessionStorage.removeItem('redirectAfterLogin')
+          } else if (returnToProduct) {
+            redirectPath = `/product/${returnToProduct}`
+            sessionStorage.removeItem('returnToProduct')
+          }
+        }
+
+        router.push(redirectPath)
+        router.refresh()
+      }
     } catch (error) {
       setError("An error occurred. Please try again.")
     } finally {

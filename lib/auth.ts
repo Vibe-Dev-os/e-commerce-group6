@@ -1,30 +1,8 @@
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
-
-// Mock user database - replace with your actual database
-// Password for all users: "password"
-const users = [
-  {
-    id: "1",
-    email: "admin@example.com",
-    password: "password", // Plain text for testing
-    name: "Admin User",
-    role: "admin"
-  },
-  {
-    id: "2", 
-    email: "user@example.com",
-    password: "password", // Plain text for testing
-    name: "Regular User",
-    role: "user"
-  }
-]
-
-// Helper function to hash passwords (for development)
-async function hashPassword(password: string) {
-  return await bcrypt.hash(password, 10)
-}
+import connectDB from "./mongodb"
+import User from "@/models/User"
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -40,29 +18,40 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        const user = users.find(user => user.email === credentials.email)
-        
-        if (!user) {
-          console.log("User not found:", credentials.email)
-          return null
-        }
+        try {
+          // Connect to MongoDB
+          await connectDB()
 
-        console.log("Found user:", user.email, "Role:", user.role)
-        console.log("Checking password...")
-        
-        // Simple plain text comparison for development
-        if (credentials.password !== user.password) {
-          console.log("Password mismatch")
-          return null
-        }
+          // Find user by email
+          const user = await User.findOne({ email: credentials.email.toLowerCase() })
+          
+          if (!user) {
+            console.log("User not found:", credentials.email)
+            return null
+          }
 
-        console.log("Password matched! Logging in as:", user.role)
-        
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
+          console.log("Found user:", user.email, "Role:", user.role)
+          console.log("Checking password...")
+          
+          // Compare hashed password
+          const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
+          
+          if (!isPasswordValid) {
+            console.log("Password mismatch")
+            return null
+          }
+
+          console.log("Password matched! Logging in as:", user.role)
+          
+          return {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.name,
+            role: user.role,
+          }
+        } catch (error) {
+          console.error("Auth error:", error)
+          return null
         }
       }
     })
@@ -87,7 +76,6 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/auth/signin",
-    signUp: "/auth/signup",
   },
   secret: process.env.AUTH_SECRET,
 }

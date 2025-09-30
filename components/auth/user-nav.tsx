@@ -45,14 +45,14 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
+        <button className="relative h-10 w-10 rounded-full hover:ring-2 hover:ring-primary focus:ring-2 focus:ring-primary outline-none transition-all">
+          <Avatar className="h-10 w-10">
             <AvatarImage src="" alt={session.user.name || ""} />
-            <AvatarFallback>{initials}</AvatarFallback>
+            <AvatarFallback className="bg-primary text-primary-foreground font-semibold">{initials}</AvatarFallback>
           </Avatar>
-        </Button>
+        </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
+      <DropdownMenuContent className="w-56 z-50" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{session.user.name}</p>
