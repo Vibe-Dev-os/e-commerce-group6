@@ -71,7 +71,12 @@ export function AuthForm() {
       if (result?.error) {
         setError("Invalid email or password")
       } else {
-        router.push("/")
+        // Check if admin user and redirect accordingly
+        if (data.email === "admin@example.com") {
+          router.push("/admin/products")
+        } else {
+          router.push("/")
+        }
         router.refresh()
       }
     } catch (error) {

@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { User, LogOut, Settings, ShoppingBag } from "lucide-react"
+import { User, LogOut, Settings, ShoppingBag, Shield } from "lucide-react"
 
 export function UserNav() {
   const { data: session, status } = useSession()
@@ -62,6 +62,17 @@ export function UserNav() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {session.user.role === "admin" && (
+          <>
+            <DropdownMenuItem asChild>
+              <Link href="/admin/products" className="cursor-pointer">
+                <Shield className="mr-2 h-4 w-4" />
+                <span>Admin Panel</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuItem asChild>
           <Link href="/profile" className="cursor-pointer">
             <User className="mr-2 h-4 w-4" />
