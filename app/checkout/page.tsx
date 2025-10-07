@@ -153,7 +153,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto grid max-w-7xl lg:grid-cols-2">
+      <div className="mx-auto grid max-w-[1920px] lg:grid-cols-2">
         {/* Left side - Form */}
         <div className="border-r border-border px-6 py-12 lg:px-12">
           <Link href="/" className="mb-12 flex items-center gap-2">
@@ -484,7 +484,7 @@ export default function CheckoutPage() {
             {items.map((item) => (
               <div key={`${item.productId}-${item.color}-${item.size}`} className="flex gap-4">
                 <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-border">
-                  <Image src={item.image || "/placeholder.svg"} alt={item.name} fill className="object-cover" />
+                  <Image src={item.image || "/placeholder.svg"} alt={item.name} fill className="object-cover" quality={100} unoptimized />
                   <div className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-bold">
                     {item.quantity}
                   </div>

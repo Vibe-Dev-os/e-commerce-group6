@@ -26,11 +26,11 @@ export function UserNav() {
   if (!session) {
     return (
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" asChild>
+        <Button variant="ghost" size="sm" asChild className="text-foreground hover:text-foreground hover:bg-white/10">
           <Link href="/auth/signin">Sign In</Link>
         </Button>
-        <Button size="sm" asChild>
-          <Link href="/auth/signin">Sign Up</Link>
+        <Button size="sm" asChild className="bg-blue-600 text-white hover:bg-blue-700">
+          <Link href="/auth/signup">Sign Up</Link>
         </Button>
       </div>
     )
@@ -45,10 +45,10 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="relative h-10 w-10 rounded-full hover:ring-2 hover:ring-primary focus:ring-2 focus:ring-primary outline-none transition-all">
-          <Avatar className="h-10 w-10">
+        <button className="relative h-10 w-10 rounded-full border-2 border-white/20 hover:border-white/40 focus:border-white/40 outline-none transition-all overflow-hidden">
+          <Avatar className="h-full w-full">
             <AvatarImage src="" alt={session.user.name || ""} />
-            <AvatarFallback className="bg-primary text-primary-foreground font-semibold">{initials}</AvatarFallback>
+            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold text-sm">{initials}</AvatarFallback>
           </Avatar>
         </button>
       </DropdownMenuTrigger>

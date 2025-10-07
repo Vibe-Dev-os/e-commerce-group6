@@ -62,7 +62,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                 {items.map((item) => (
                   <div key={`${item.productId}-${item.color}-${item.size}`} className="flex gap-4">
                     <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-border">
-                      <Image src={item.image || "/placeholder.svg"} alt={item.name} fill className="object-cover" />
+                      <Image src={item.image || "/placeholder.svg"} alt={item.name} fill className="object-cover" quality={100} unoptimized />
                     </div>
                     <div className="flex flex-1 flex-col">
                       <div className="flex items-start justify-between">

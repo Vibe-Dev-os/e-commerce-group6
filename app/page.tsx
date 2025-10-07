@@ -1,16 +1,55 @@
 "use client"
 
-import { useState } from "react"
-import { products } from "@/lib/products"
+import { useState, useEffect } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ProductCard } from "@/components/product-card"
 import { CartSidebar } from "@/components/cart-sidebar"
 import { InfiniteScrollProducts } from "@/components/infinite-scroll-products"
+import { Loader2 } from "lucide-react"
+
+interface Product {
+  id: string
+  name: string
+  price: number
+  description: string
+  images: string[]
+  colors: { name: string; value: string }[]
+  sizes: string[]
+  category: string
+}
 
 export default function HomePage() {
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch("/api/products")
+      if (response.ok) {
+        const data = await response.json()
+        setProducts(data)
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   const filteredProducts = selectedCategory ? products.filter((p) => p.category === selectedCategory) : products
 
@@ -21,7 +60,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-background">
       <Header onCartClick={() => setIsCartOpen(true)} />
 
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-[1920px] px-3 py-8 sm:px-4 lg:px-6">
         <div className="grid gap-4 lg:grid-cols-3">
           {/* Featured product - takes up 2 columns on large screens */}
           <div className="lg:col-span-2 lg:row-span-2">

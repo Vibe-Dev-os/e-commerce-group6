@@ -18,8 +18,8 @@ console.log("📝 Using MongoDB URI:", MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, "
 // Default users
 const defaultUsers = [
   {
-    email: "admin@example.com",
-    password: "password",
+    email: "group6@gmail.com",
+    password: "group6ecom",
     name: "Admin User",
     role: "admin" as const,
   },

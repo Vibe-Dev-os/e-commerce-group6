@@ -62,7 +62,7 @@ export default function SearchPage() {
       <Header onCartClick={() => setIsCartOpen(true)} />
       <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      <main className="mx-auto max-w-[1920px] px-3 sm:px-4 lg:px-6 py-8">
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold">

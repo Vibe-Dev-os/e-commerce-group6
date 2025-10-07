@@ -21,7 +21,7 @@ export function Header({ onCartClick }: { onCartClick: () => void }) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-16 max-w-[1920px] items-center justify-between px-3 sm:px-4 lg:px-6">
         <Link href="/" className="flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 rounded-md">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-6 w-6 text-white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -32,8 +32,8 @@ export function Header({ onCartClick }: { onCartClick: () => void }) {
             </svg>
           </div>
           <div className="flex flex-col leading-none">
-            <span className="text-lg font-bold tracking-tight">NEXUS</span>
-            <span className="text-xs text-blue-500 font-semibold">TECH</span>
+            <span className="text-lg font-bold tracking-tight">C.A.D.</span>
+            <span className="text-xs text-blue-500 font-semibold">Tech</span>
           </div>
         </Link>
 
@@ -54,13 +54,13 @@ export function Header({ onCartClick }: { onCartClick: () => void }) {
 
         <div className="flex items-center gap-4">
           <form onSubmit={handleSearch} className="relative hidden sm:block">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/70 pointer-events-none z-10" />
             <input
               type="search"
               placeholder="Search for products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-10 w-64 rounded-md border border-input bg-background pl-10 pr-4 text-sm outline-none ring-offset-background transition-colors placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+              className="h-10 w-64 rounded-md border-2 border-white/30 bg-background pl-10 pr-4 text-sm text-foreground outline-none transition-colors placeholder:text-white/50 focus:border-white focus-visible:ring-2 focus-visible:ring-white/50"
             />
           </form>
 

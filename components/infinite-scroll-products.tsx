@@ -75,7 +75,7 @@ export function InfiniteScrollProducts({ products }: InfiniteScrollProductsProps
         >
           {duplicatedProducts.map((product, index) => (
             <div key={`${product.id}-${index}`} className="w-80 flex-shrink-0">
-              <ProductCard product={product} transparent />
+              <ProductCard product={product} />
             </div>
           ))}
         </div>

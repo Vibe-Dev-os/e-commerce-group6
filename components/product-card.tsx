@@ -16,14 +16,17 @@ export function ProductCard({ product, featured = false, transparent = false }: 
     return (
       <Link
         href={`/product/${product.id}`}
-        className="group relative flex h-full flex-col overflow-hidden rounded-lg border-2 border-border bg-card transition-all duration-300 hover:border-green-500"
+        className="group relative flex h-full flex-col overflow-hidden rounded-lg border-2 border-border bg-black transition-all duration-300 hover:border-green-500"
       >
-        <div className="relative aspect-square w-full overflow-hidden bg-muted">
+        <div className="relative aspect-square w-full overflow-hidden bg-black">
           <Image
             src={product.images[0] || "/placeholder.svg"}
             alt={product.name}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
+            quality={100}
+            priority
+            unoptimized
           />
         </div>
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3 px-4">
@@ -40,15 +43,17 @@ export function ProductCard({ product, featured = false, transparent = false }: 
     <Link
       href={`/product/${product.id}`}
       className={`group relative flex h-full flex-col overflow-hidden rounded-lg border-2 transition-all duration-300 hover:border-green-500 ${
-        transparent ? "border-border/50 bg-transparent" : "border-border bg-card"
+        transparent ? "border-border/50 bg-transparent" : "border-border bg-black"
       }`}
     >
-      <div className={`relative aspect-square w-full overflow-hidden ${transparent ? "bg-transparent" : "bg-muted"}`}>
+      <div className={`relative aspect-square w-full overflow-hidden ${transparent ? "bg-transparent" : "bg-black"}`}>
         <Image
           src={product.images[0] || "/placeholder.svg"}
           alt={product.name}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
+          quality={100}
+          unoptimized
         />
       </div>
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3 px-4">

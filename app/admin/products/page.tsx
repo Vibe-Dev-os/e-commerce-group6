@@ -200,22 +200,15 @@ export default function ProductsPage() {
   }
 
   const handleAddNew = () => {
+    setIsDialogOpen(true)
     setEditingProduct(null)
     form.reset()
-    setIsDialogOpen(true)
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-      case "inactive":
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
-      case "out_of_stock":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
-      default:
-        return ""
-    }
+  const getStockStatus = (stock: number) => {
+    if (stock === 0) return { label: "Out of Stock", color: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300" }
+    if (stock < 10) return { label: "Low Stock", color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300" }
+    return { label: "In Stock", color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300" }
   }
 
   return (
@@ -419,9 +412,8 @@ export default function ProductsPage() {
                   <TableCell>₱{product.price.toFixed(2)}</TableCell>
                   <TableCell>{product.stock}</TableCell>
                   <TableCell>
-                    <Badge className={getStatusColor(product.status)}>
-                      {product.status.replace("_", " ").charAt(0).toUpperCase() + 
-                       product.status.replace("_", " ").slice(1)}
+                    <Badge className={getStockStatus(product.stock || 0).color}>
+                      {getStockStatus(product.stock || 0).label}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">

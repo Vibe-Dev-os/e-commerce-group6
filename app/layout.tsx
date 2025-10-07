@@ -8,7 +8,7 @@ import { Providers } from "@/components/providers"
 import { Suspense } from "react"
 
 export const metadata: Metadata = {
-  title: "NEXUS TECH - Gaming Laptops & Accessories",
+  title: "C.A.D. Tech - Gaming Laptops & Accessories",
   description: "Your ultimate destination for gaming laptops and accessories. Made with ❤️ by Group 6",
   generator: "v0.app",
 }
