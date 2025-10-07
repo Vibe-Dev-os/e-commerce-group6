@@ -4,6 +4,9 @@ import { authOptions } from "@/lib/auth"
 import connectDB from "@/lib/mongodb"
 import User from "@/models/User"
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic'
+
 // GET - Fetch all users (admin only)
 export async function GET(request: NextRequest) {
   try {

@@ -94,8 +94,8 @@ const OrderSchema = new Schema<IOrder>(
   }
 )
 
-// Index for faster queries
-OrderSchema.index({ orderNumber: 1 })
+// Indexes for faster queries
+// Note: orderNumber index is automatically created by unique: true
 OrderSchema.index({ userId: 1 })
 OrderSchema.index({ "customerInfo.email": 1 })
 OrderSchema.index({ orderStatus: 1 })

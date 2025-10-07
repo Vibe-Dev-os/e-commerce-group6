@@ -6,6 +6,9 @@ import Order from "@/models/Order"
 import User from "@/models/User"
 import Product from "@/models/Product"
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic'
+
 // GET - Fetch dashboard statistics (admin only)
 export async function GET(request: NextRequest) {
   try {

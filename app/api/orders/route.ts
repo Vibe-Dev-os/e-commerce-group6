@@ -2,7 +2,18 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import connectDB from "@/lib/mongodb"
-import Order from "@/models/Order"
+import Order, { IOrder } from "@/models/Order"
+import { Types } from "mongoose"
+
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic'
+
+// Type for lean Order documents (includes MongoDB metadata)
+type OrderDocument = IOrder & {
+  _id: Types.ObjectId
+  createdAt: Date
+  updatedAt: Date
+}
 
 // GET - Fetch user's orders
 export async function GET(request: NextRequest) {
@@ -21,7 +32,7 @@ export async function GET(request: NextRequest) {
     // Fetch orders for this user
     const orders = await Order.find({ userId: session.user.id })
       .sort({ createdAt: -1 }) // Most recent first
-      .lean()
+      .lean() as unknown as OrderDocument[]
 
     // Format orders for response
     const formattedOrders = orders.map((order) => ({

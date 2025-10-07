@@ -35,7 +35,7 @@ export const products: Product[] = [
     name: "ASUS ROG STRIX G18",
     price: 129999.0,
     description: "Dominate the battlefield with the ASUS ROG STRIX G18. This powerhouse features AMD Ryzen 9 7945HX processor and NVIDIA RTX 4080 graphics for uncompromising performance. Equipped with 32GB DDR5 RAM and massive 2TB NVMe SSD storage. The 18-inch 240Hz FHD display with G-SYNC technology ensures tear-free, ultra-smooth gameplay. ROG's signature design with customizable RGB lighting makes this the ultimate gaming machine.",
-    images: ["https://benstore.com.ph/36867-medium_default/asus-rog-strix-g18-g814pp-ds94-18-qhd-gaming-laptop-240hz-ryzen-9-8940hx-rtx-5070-8gb-16gb-ddr5-1tb-ssd-.jpg"],
+    images: ["https://medias-p1.phoenix.razer.com/sys-master-phoenix-images-container/h5a/h1c/9821720576030/basilisk-v3-pro-35k-500x500.png"],
     colors: [
       { name: "Black", value: "black" },
       { name: "White", value: "white" },

@@ -3,6 +3,9 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { getAllProducts, addProduct } from "@/lib/products-store"
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic'
+
 // GET all products (public)
 export async function GET(request: NextRequest) {
   try {

@@ -3,13 +3,16 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { getProductById, updateProduct, deleteProduct } from "@/lib/products-store"
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic'
+
 // GET single product (public)
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const product = getProductById(params.id)
+    const product = await getProductById(params.id)
     
     if (!product) {
       return NextResponse.json(

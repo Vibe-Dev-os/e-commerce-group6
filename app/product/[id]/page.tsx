@@ -105,7 +105,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       productId: product.id,
       name: product.name,
       price: product.price,
-      image: product.images[currentImageIndex] || product.images[0],
+      image: product.images?.[currentImageIndex] || product.images?.[0] || "/placeholder.svg",
       color: selectedColor,
       size: selectedSize,
     })
@@ -122,11 +122,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   }
 
   const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % product.images.length)
+    setCurrentImageIndex((prev) => (prev + 1) % (product?.images?.length || 1))
   }
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + product.images.length) % product.images.length)
+    setCurrentImageIndex((prev) => (prev - 1 + (product?.images?.length || 1)) % (product?.images?.length || 1))
   }
 
   return (
@@ -139,7 +139,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           <div className="space-y-4">
             <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-muted">
               <Image
-                src={product.images[currentImageIndex] || "/placeholder.svg"}
+                src={product.images?.[currentImageIndex] || "/placeholder.svg"}
                 alt={product.name}
                 fill
                 className="object-cover"
@@ -147,7 +147,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 priority
                 unoptimized
               />
-              {product.images.length > 1 && (
+              {product.images?.length > 1 && (
                 <>
                   <button
                     onClick={prevImage}
@@ -168,9 +168,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             </div>
 
             {/* Image thumbnails */}
-            {product.images.length > 1 && (
+            {product.images?.length > 1 && (
               <div className="flex gap-2">
-                {product.images.map((image, index) => (
+                {product.images?.map((image, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
